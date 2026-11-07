@@ -1,4 +1,4 @@
-// Shared by the browser form and the /api/contact function, so both apply the same rules.
+// Shared by the browser form and the Cloudflare function (functions/api/contact.js), so both apply the same rules.
 export const TYPES = ["Job opportunity", "Business website", "Web app or system", "Launch & care", "Not sure yet"];
 export const LIMITS = { name: 100, email: 200, message: 5000 };
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

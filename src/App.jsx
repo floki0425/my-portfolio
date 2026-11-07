@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import Lenis from "lenis";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Analytics } from "@vercel/analytics/react";
 import Sidebar from "./components/Sidebar.jsx";
 import Contact from "./components/Contact.jsx";
 import { Hero, Statement, Flow, Work, Reels, Toolkit, About, Services } from "./components/Sections.jsx";
@@ -88,7 +87,6 @@ export default function App() {
         <Contact preset={preset} />
         <footer className="foot pad"><span>© {new Date().getFullYear()} {PROFILE.name}</span><span className="mono">Built with React, GSAP &amp; Lenis</span></footer>
       </main>
-      <Analytics />
     </>
   );
 }

@@ -149,4 +149,4 @@ export const REELS = {
   ],
 };
 
-// Contact form options live in api/_lib/validate.js (TYPES), shared with the server.
+// Contact form options live in src/validate.js (TYPES), shared with the server function.

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { PROFILE } from "../data.js";
-import { TYPES, validate } from "../../api/_lib/validate.js";
+import { TYPES, validate } from "../validate.js";
 
 const FIELDS = ["name", "email", "type", "message"];
 

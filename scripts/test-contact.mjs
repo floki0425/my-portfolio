@@ -1,7 +1,7 @@
-// Self-check for the contact form rules and the /api/contact function. Run: npm test
+// Self-check for the contact form rules and the Cloudflare /api/contact function. Run: npm test
 import assert from "node:assert/strict";
-import { validate } from "../api/_lib/validate.js";
-import handler from "../api/contact.js";
+import { validate } from "../src/validate.js";
+import { onRequestPost } from "../functions/api/contact.js";
 
 const good = { name: "Ana Cruz", email: "ana@example.com", type: "Business website", message: "I need a site for my bakery." };
 
@@ -14,26 +14,22 @@ assert.ok(validate({ ...good, message: "short" }).errors.message);
 assert.equal(validate({ ...good, name: "Ana\r\nBcc: x@y.z" }).values.name, "Ana Bcc: x@y.z"); // no header injection via subject
 assert.equal(validate({}).ok, false);
 
-// fake req/res + fetch
-const call = async (req, env = {}) => {
-  const saved = { ...process.env };
-  Object.assign(process.env, env);
-  const out = { status: 0, body: null, headers: {} };
-  const res = { status(c) { out.status = c; return this; }, json(b) { out.body = b; return this; }, setHeader(k, v) { out.headers[k] = v; } };
-  await handler(req, res);
-  process.env = saved;
-  return out;
+// the function, with a fake Request/env and a fake fetch to Resend
+const call = async (body, env, raw) => {
+  const req = new Request("https://site.test/api/contact", { method: "POST", body: raw ?? JSON.stringify(body), headers: { "content-type": "application/json" } });
+  const res = await onRequestPost({ request: req, env });
+  return { status: res.status, body: await res.json() };
 };
 let sent = null;
 globalThis.fetch = async (url, opts) => { sent = { url, body: JSON.parse(opts.body), auth: opts.headers.Authorization }; return { ok: true }; };
 const env = { RESEND_API_KEY: "test-key", CONTACT_TO_EMAIL: "me@example.com" };
 
-assert.equal((await call({ method: "GET" }, env)).status, 405);
-assert.equal((await call({ method: "POST", body: { ...good, company: "bot" } }, env)).status, 200);
+assert.equal((await call({ ...good, company: "bot" }, env)).status, 200);
 assert.equal(sent, null, "honeypot must not send");
-assert.equal((await call({ method: "POST", body: { ...good, email: "x" } }, env)).status, 400);
-assert.equal((await call({ method: "POST", body: good }, {})).status, 500, "missing config is reported");
-const ok = await call({ method: "POST", body: good }, env);
+assert.equal((await call(null, env, "not json")).status, 400, "bad JSON is rejected, not a crash");
+assert.equal((await call({ ...good, email: "x" }, env)).status, 400);
+assert.equal((await call(good, {})).status, 500, "missing config is reported");
+const ok = await call(good, env);
 assert.equal(ok.status, 200);
 assert.equal(sent.url, "https://api.resend.com/emails");
 assert.equal(sent.auth, "Bearer test-key");
@@ -41,6 +37,6 @@ assert.deepEqual(sent.body.to, ["me@example.com"]);
 assert.equal(sent.body.reply_to, "ana@example.com");
 assert.match(sent.body.text, /bakery/);
 globalThis.fetch = async () => ({ ok: false });
-assert.equal((await call({ method: "POST", body: good }, env)).status, 502);
+assert.equal((await call(good, env)).status, 502);
 
 console.log("contact: all checks passed");
