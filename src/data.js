@@ -81,11 +81,11 @@ export const PROJECTS = [
   { name: "Nexfora OS", url: "https://nexfora-neon.vercel.app", label: "Web app · Next.js", stack: ["Next.js", "React", "Tailwind CSS"], shot: "/work/nexfora-os.webp" },
   { name: "Pure Grind", url: "https://pure-grind-website.vercel.app", label: "Product site", stack: ["React", "Vite", "Tailwind CSS"], shot: "/work/pure-grind.webp", full: "/work/pure-grind-full.webp" },
   { name: "Hoppin With Shawn's", url: "https://car-rental-pi-pearl.vercel.app/", label: "Car rental", stack: ["React", "Vite", "Tailwind CSS"], shot: "/work/hoppin.webp", full: "/work/hoppin-full.webp" },
-  { name: "SYNQRO", url: "https://synqro.nexforatech.com/", label: "NFC card app", stack: ["Next.js", "React", "Tailwind CSS"], shot: "/work/synqro.webp" },
+  { name: "SYNQRO", url: "https://synqro.nexforatech.com/", label: "NFC card app", stack: ["Next.js", "React", "Tailwind CSS"], shot: "/work/synqro.webp", full: "/work/synqro-full.webp" },
   { name: "Forge", url: "https://www.getforge.uk/", label: "Agency site", stack: ["React", "Vite", "Tailwind CSS"], shot: "/work/forge.webp", full: "/work/forge-full.webp" },
   { name: "Renta Motor Manila", url: "https://rentamotormanila.com/", label: "Rentals", stack: [], shot: "/work/renta-motor.webp" },
-  { name: "BookBike", url: "https://bookbike.com.ph/", label: "Corporate", stack: ["WordPress", "Elementor"], shot: "/work/bookbike.webp" },
-  { name: "NEXFORA", url: "https://www.nexforatech.com/", label: "Studio site", stack: ["Next.js", "React", "Tailwind CSS"], shot: "/work/nexfora.webp" },
+  { name: "BookBike", url: "https://bookbike.com.ph/", label: "Corporate", stack: ["WordPress", "Elementor"], shot: "/work/bookbike.webp", full: "/work/bookbike-full.webp" },
+  { name: "NEXFORA", url: "https://www.nexforatech.com/", label: "Studio site", stack: ["Next.js", "React", "Tailwind CSS"], shot: "/work/nexfora.webp", full: "/work/nexfora-full.webp" },
   { name: "San Roque Parish", url: "", label: "In progress", stack: ["Next.js", "React"], shot: "/work/san-roque.webp" },
 ];
 
