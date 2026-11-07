@@ -34,7 +34,7 @@ Contact form options are in `src/validate.js` (`TYPES`), shared by the browser a
 1. In the Cloudflare dashboard: **Workers & Pages → Create → Pages → Connect to Git**, and pick `floki0425/my-portfolio`.
 2. Build settings: framework preset **React (Vite)** (or None), build command `npm run build`, output directory `dist`.
    Under **Environment variables** add `NODE_VERSION` = `22` (Vite 8 needs a recent Node).
-3. Deploy. The site gets an address like `https://my-portfolio.pages.dev`.
+3. Deploy. The site gets an address like `https://my-portfolio-d6c.pages.dev`.
 4. In the Pages project, **Settings → Variables and Secrets**, add:
 
    | Name | Type | Value |
@@ -44,7 +44,7 @@ Contact form options are in `src/validate.js` (`TYPES`), shared by the browser a
    | `CONTACT_FROM_EMAIL` | Text | optional, once your domain is verified in Resend |
 
    Until you verify a domain in Resend, leave `CONTACT_FROM_EMAIL` unset and use the email you signed up to Resend with as `CONTACT_TO_EMAIL`. Then **redeploy** so the function picks the values up.
-5. If the address differs from `https://my-portfolio.pages.dev`, update `VITE_SITE_URL` in `.env.production` and push.
+5. If the address differs from `https://my-portfolio-d6c.pages.dev`, update `VITE_SITE_URL` in `.env.production` and push.
 6. Optional: **Web Analytics** (Cloudflare, cookie-free) and **Custom domains** in the Pages project.
 
 Every `git push` to `main` redeploys automatically.
