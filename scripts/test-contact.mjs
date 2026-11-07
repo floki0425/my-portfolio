@@ -1,7 +1,7 @@
 // Self-check for the contact form rules and the Cloudflare /api/contact function. Run: npm test
 import assert from "node:assert/strict";
 import { validate } from "../src/validate.js";
-import { onRequestPost } from "../functions/api/contact.js";
+import { onRequestPost, RATE } from "../functions/api/contact.js";
 
 const good = { name: "Ana Cruz", email: "ana@example.com", type: "Business website", message: "I need a site for my bakery." };
 
@@ -15,8 +15,8 @@ assert.equal(validate({ ...good, name: "Ana\r\nBcc: x@y.z" }).values.name, "Ana 
 assert.equal(validate({}).ok, false);
 
 // the function, with a fake Request/env and a fake fetch to Resend
-const call = async (body, env, raw) => {
-  const req = new Request("https://site.test/api/contact", { method: "POST", body: raw ?? JSON.stringify(body), headers: { "content-type": "application/json" } });
+const call = async (body, env, raw, ip = "1.1.1.1") => {
+  const req = new Request("https://site.test/api/contact", { method: "POST", body: raw ?? JSON.stringify(body), headers: { "content-type": "application/json", "CF-Connecting-IP": ip } });
   const res = await onRequestPost({ request: req, env });
   return { status: res.status, body: await res.json() };
 };
@@ -38,5 +38,29 @@ assert.equal(sent.body.reply_to, "ana@example.com");
 assert.match(sent.body.text, /bakery/);
 globalThis.fetch = async () => ({ ok: false });
 assert.equal((await call(good, env)).status, 502);
+
+// Turnstile: fake siteverify accepts only the token "pass"
+let verified = null;
+globalThis.fetch = async (url, opts) => {
+  if (url.includes("siteverify")) { verified = Object.fromEntries(opts.body); return { json: async () => ({ success: verified.response === "pass" }) }; }
+  sent = { url, body: JSON.parse(opts.body) }; return { ok: true };
+};
+const tsEnv = { ...env, TURNSTILE_SECRET_KEY: "ts-secret" };
+sent = null;
+assert.equal((await call(good, tsEnv)).status, 403, "missing token is rejected");
+assert.equal((await call({ ...good, turnstile: "fail" }, tsEnv)).status, 403, "bad token is rejected");
+assert.equal(sent, null, "no email without a valid token");
+assert.equal((await call({ ...good, turnstile: "pass" }, tsEnv, undefined, "9.9.9.9")).status, 200);
+assert.equal(verified.secret, "ts-secret");
+assert.equal(verified.remoteip, "9.9.9.9");
+assert.ok(sent, "valid token sends");
+
+// rate limit: fake KV
+const store = new Map();
+const kvEnv = { ...env, RATE_LIMIT: { get: async k => store.get(k) ?? null, put: async (k, v, o) => { assert.equal(o.expirationTtl, RATE.windowSec); store.set(k, v); } } };
+for (let i = 0; i < RATE.max; i++) assert.equal((await call(good, kvEnv, undefined, "2.2.2.2")).status, 200, `message ${i + 1} allowed`);
+const blocked = await call(good, kvEnv, undefined, "2.2.2.2");
+assert.equal(blocked.status, 429, "over the limit is blocked");
+assert.equal((await call(good, kvEnv, undefined, "3.3.3.3")).status, 200, "other visitors unaffected");
 
 console.log("contact: all checks passed");

@@ -9,7 +9,7 @@ Personal portfolio: a profile sidebar, a scroll-lit statement, an animated order
 ```bash
 npm install
 npm run dev        # http://localhost:5173
-npm test           # contact form + API self-check
+npm test           # contact form + API self-check (validation, Turnstile, rate limit)
 npm run build      # production build in dist/
 ```
 
@@ -43,7 +43,15 @@ Contact form options are in `src/validate.js` (`TYPES`), shared by the browser a
    | `CONTACT_TO_EMAIL` | Text | the inbox that receives messages |
    | `CONTACT_FROM_EMAIL` | Text | optional, once your domain is verified in Resend |
 
+   | `TURNSTILE_SECRET_KEY` | Secret | from Turnstile (below) |
+   | `VITE_TURNSTILE_SITE_KEY` | Text | from Turnstile (below); read at build time |
+
    Until you verify a domain in Resend, leave `CONTACT_FROM_EMAIL` unset and use the email you signed up to Resend with as `CONTACT_TO_EMAIL`. Then **redeploy** so the function picks the values up.
+
+   **Spam protection** (each part is skipped until it is set up, so the form keeps working meanwhile):
+   - **Turnstile** (bot check, usually invisible): Cloudflare dashboard → **Turnstile → Add widget**, hostname `my-portfolio-d6c.pages.dev`, mode **Managed**. Copy the **site key** into `VITE_TURNSTILE_SITE_KEY` and the **secret key** into `TURNSTILE_SECRET_KEY`. Set both: the site key alone shows the widget but nothing checks it.
+   - **Rate limit** (5 messages per visitor per hour, `RATE` in `functions/api/contact.js`): **Storage & Databases → KV → Create** a namespace (e.g. `contact-rate-limit`), then in the Pages project **Settings → Bindings → Add → KV namespace**, variable name `RATE_LIMIT`.
+   - Redeploy after adding them.
 5. If the address differs from `https://my-portfolio-d6c.pages.dev`, update `VITE_SITE_URL` in `.env.production` and push.
 6. Optional: **Web Analytics** (Cloudflare, cookie-free) and **Custom domains** in the Pages project.
 

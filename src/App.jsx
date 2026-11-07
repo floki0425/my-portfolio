@@ -84,7 +84,7 @@ export default function App() {
         <Toolkit />
         <About onNav={nav} />
         <Services reduce={reduce} onNav={nav} />
-        <Contact preset={preset} />
+        <Contact preset={preset} theme={theme} />
         <footer className="foot pad"><span>© {new Date().getFullYear()} {PROFILE.name}</span><span className="mono">Built with React, GSAP &amp; Lenis</span></footer>
       </main>
     </>
